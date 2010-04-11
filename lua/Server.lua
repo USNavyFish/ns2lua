@@ -196,6 +196,24 @@ function OnCommandNick( ply, ... )
     ply:SetNick( nickname )
 end
 
+function OnCommandInstaGib( ply )
+    if Server.instagib ~= true then
+        Server.Broadcast( ply, "Game changed to instagib mode by " .. ply:GetNick() )
+        Server.instagib = true
+        Rifle.clipSize              =  1
+        Rifle.reloadTime            =  2.5 
+        Player.moveAcceleration     =  5
+        Player.jumpHeight           =  0.7   
+    else
+        Server.Broadcast( ply, "Game changed to normal mode by " .. ply:GetNick() )
+        Server.instagib = false
+        Rifle.clipSize              =  30
+        Rifle.reloadTime            =  3 
+        Player.moveAcceleration     =  4
+        Player.jumpHeight           =  1   
+    end
+end
+
 
 // Hook the game methods.
 Event.Hook("ClientConnect",         OnClientConnect)
@@ -220,3 +238,5 @@ Event.Hook("Console_alienteam",		OnConsoleAlienTeam)
 Event.Hook("Console_randomteam",	OnConsoleRandomTeam)
 Event.Hook("Console_lua",           OnConsoleLua)
 Event.Hook("Console_nick",          OnCommandNick)
+
+Event.Hook("Console_instagib",      OnCommandInstaGib)

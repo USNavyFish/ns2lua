@@ -123,7 +123,11 @@ function Player:ChangeClass(newClass)
         //self:SetViewModel("models/marine/rifle/rifle_view.model") (ChangeWeapon() sets this)
         self:GiveWeapon("weapon_rifle")
         self.viewOffset = Vector(0, 1.6256, 0)
-        self.moveSpeed = 7
+        if Server.instagib == true then
+            self.moveSpeed = 12
+        else
+            self.moveSpeed = 7
+        end
         self.defaultHealth = 100
         self.extents = Vector(0.4064, 0.7874, 0.4064)
         self.gravity = -9.81
@@ -775,6 +779,9 @@ if (Server) then
     end
 
     function Player:TakeDamage(attacker, damage, doer, point, direction)
+        if Server.instagib == true then
+            damage = 100
+        end
         self.health = self.health - damage
         self.score = self.health
         if (self.health <= 0) then

@@ -11,8 +11,10 @@ Shared.PrecacheSound(Turret.dieSound)
 
 Turret.State = enum { 'Idle', 'Firing' }
 
-Turret.thinkInterval = 0.25
+Turret.thinkInterval = 0.15
 Turret.attackRadius = 10
+
+Turret.PiOverTwo = math.pi/2.0
 
 function Turret:OnInit()
     Actor.OnInit(self)
@@ -55,21 +57,18 @@ if (Server) then
             local target = Vector(player:GetOrigin())
             local mypos = Vector(self:GetOrigin())
             
-            local x1 = target.x - mypos.x
-            local y1 = target.y - mypos.y
-            local z1 = target.z - mypos.z
+            local vec = target - mypos
 
-			local horizHypSqr = (x1*x1+z1*z1)
-			local horizHyp = math.sqrt(horizHypSqr)
-			local vertHyp = math.sqrt(horizHypSqr+y1*y1)
-
-			local yaw = math.acos(x1 / horizHyp)
-			if (z1 > 0) then
-				yaw = math.pi*2 - yaw
-			end
-			local pitch = math.asin(y1 / vertHyp)
-
-            self:SetAngles(Angles(0, yaw, pitch))
+			local angles =  Angles(0,0,0)
+			
+			angles.yaw = math.atan2(vec.x, vec.z) - Turret.PiOverTwo
+			angles.roll = math.sin(vec.y)
+			//Note that the current sentry model is rotated 90, hence needing to roll it instead of pitching it.
+			
+            self:SetAngles(angles)
+			
+			//Shared.Message("p " .. angles.pitch .. " y " .. angles.yaw .. " r " .. angles.roll)
+            
         end
         
         self:SetNextThink(Turret.thinkInterval)

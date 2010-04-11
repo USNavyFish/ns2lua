@@ -105,6 +105,7 @@ function Player:OnInit()
     if (Client) then
 
         self:SetHud("ui/hud.swf")
+		self:SetHud("ui/chat.swf")
 
         self.horizontalSwing = 0
         self.verticalSwing   = 0
@@ -797,6 +798,8 @@ if (Server) then
             self.health = self.defaultHealth
             self.deaths = self.deaths + 1
             attacker.kills = attacker.kills + 1
+			
+			Chat.instance:SetMessage(attacker:GetNick() .. " killed " .. self:GetNick())
         end
 
     end

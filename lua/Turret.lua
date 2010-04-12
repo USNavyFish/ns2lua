@@ -11,10 +11,12 @@ Shared.PrecacheSound(Turret.dieSound)
 
 Turret.State = enum { 'Idle', 'Firing' }
 
-Turret.thinkInterval = 0.15
+Turret.thinkInterval = 0.1
 Turret.attackRadius = 10
-
+Turret.yawRate = .2
+Turret.pitchRate = .1
 Turret.PiOverTwo = math.pi/2.0
+Turret.TwoPi = math.pi * 2.0
 
 function Turret:OnInit()
     Actor.OnInit(self)
@@ -54,16 +56,28 @@ if (Server) then
         	// Trigger a popup in the future (with the mean being the specfied delay).
             //self.popupTime = time + Shared.GetRandomFloat(0, self.popupDelay * 2)
             
+			self:SetAnimation( "aim" )
+			
             local target = Vector(player:GetOrigin())
             local mypos = Vector(self:GetOrigin())
             
-            local vec = target - mypos
+            local desired = target - mypos
 
-			local angles =  Angles(0,0,0)
+			local angles =  Angles(self:GetAngles())
 			
-			angles.yaw = math.atan2(vec.x, vec.z) - Turret.PiOverTwo
-			angles.roll = math.sin(vec.y)
-			//Note that the current sentry model is rotated 90, hence needing to roll it instead of pitching it.
+			local targetYaw = math.atan2(desired.x, desired.z)
+			local targetPitch = -math.asin(desired.y/(math.sqrt(desired.x*desired.x + desired.z*desired.z)))
+					
+			Shared.Message("targetyaw " .. targetYaw .. " currentyaw " .. angles.yaw)
+			
+			local dYaw = targetYaw - angles.yaw
+			local dpitch = targetPitch - angles.pitch
+
+			local yawAmount = math.min(math.abs(dYaw), math.abs(Turret.yawRate))*GetSign(dYaw)
+			local pitchAmount = math.min(math.abs(dpitch), math.abs(Turret.pitchRate))*GetSign(dpitch)
+			
+			angles.yaw = angles.yaw + yawAmount
+			angles.pitch = angles.pitch + pitchAmount
 			
             self:SetAngles(angles)
 			
